@@ -30,5 +30,10 @@
 <style scoped>
   h1 {
     color: #64b587;
+	background-image: linear-gradient(#fff,#a3eaff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 .375rem rgba(8,44,68,.5))
   }
 </style>

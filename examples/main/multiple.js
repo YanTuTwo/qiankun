@@ -16,4 +16,5 @@ function unmount() {
 document.querySelector('#mount').addEventListener('click', mount);
 document.querySelector('#unmount').addEventListener('click', unmount);
 
-loadMicroApp({ name: 'vue', entry: '//localhost:7101', container: '#vue' });
+loadMicroApp({ name: 'vue', entry: '//localhost:7101', container: '#vue' },
+{ sandbox: { experimentalStyleIsolation: true } });
