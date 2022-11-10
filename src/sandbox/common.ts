@@ -4,9 +4,12 @@
  */
 
 import { isBoundedFunction, isCallable, isConstructable } from '../utils';
+import { globals } from './globals';
+import { without } from 'lodash';
 
 type AppInstance = { name: string; window: WindowProxy };
 let currentRunningApp: AppInstance | null = null;
+
 /**
  * get the app that running tasks at current tick
  */
@@ -15,11 +18,15 @@ export function getCurrentRunningApp() {
 }
 
 export function setCurrentRunningApp(appInstance: { name: string; window: WindowProxy } | null) {
-  // set currentRunningApp and it's proxySandbox to global window, as its only use case is for document.createElement from now on, which hijacked by a global way
+  // Set currentRunningApp and it's proxySandbox to global window, as its only use case is for document.createElement from now on, which hijacked by a global way
   currentRunningApp = appInstance;
 }
 
+const spiedGlobals = ['window', 'self', 'globalThis', 'top', 'parent', 'hasOwnProperty', 'document', 'eval'];
+export const trustedGlobals = [...without(globals, ...spiedGlobals), 'requestAnimationFrame'];
+
 const functionBoundedValueMap = new WeakMap<CallableFunction, CallableFunction>();
+
 export function getTargetValue(target: any, value: any): any {
   /*
     仅绑定 isCallable && !isBoundedFunction && !isConstructable 的函数对象，如 window.console、window.atob 这类，不然微应用中调用时会抛出 Illegal invocation 异常
@@ -75,17 +82,4 @@ export function getTargetValue(target: any, value: any): any {
   }
 
   return value;
-}
-
-const getterInvocationResultMap = new WeakMap<CallableFunction, any>();
-
-export function getProxyPropertyValue(getter: CallableFunction) {
-  const getterResult = getterInvocationResultMap.get(getter);
-  if (!getterResult) {
-    const result = getter();
-    getterInvocationResultMap.set(getter, result);
-    return result;
-  }
-
-  return getterResult;
 }
